@@ -17,6 +17,10 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
+  env: {
+    baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+    googleApiKey: process.env.GOOGLE_API_KEY || ''
+  },
   /*
   ** Customize the progress-bar color
   */
@@ -30,6 +34,7 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
+    { src: '~/plugins/vue2-google-maps.js', ssr: false }
   ],
   /*
   ** Nuxt.js dev-modules
@@ -81,6 +86,16 @@ export default {
     ** You can extend webpack config here
     */
     extend (config, ctx) {
+      config.externals = config.externals || []
+      if (!ctx.isClient) {
+        config.externals.splice(0, 0, function (context, request, callback) {
+          if (/^vue2-google-maps($|\/)/.test(request)) {
+            callback(null, false)
+          } else {
+            callback()
+          }
+        })
+      }
     }
   }
 }
